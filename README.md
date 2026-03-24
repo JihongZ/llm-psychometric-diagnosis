@@ -1,4 +1,4 @@
-<h1 align="center">🧠 LLM-Assisted Psychometric Diagnosis</h1>
+<h1 align="center">🧠 AutoPsychDx</h1>
 
 <p align="center">
   <strong>One command. Three methods. Automatic clinical diagnosis from item-level response data.</strong>
@@ -122,7 +122,7 @@ install.packages(c("mirt", "CDM"))
 **Step 3 — Install the diagnosis command**
 
 ```bash
-git clone https://github.com/JihongZ/llm-psychometric-diagnosis
+git clone https://github.com/JihongZ/AutoPsychDx
 cd llm-psychometric-diagnosis
 pipx install -e .   # use pipx, not pip
 ```
@@ -305,7 +305,7 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 
 <div align="center">
 
-**LLM-Assisted Psychometric Diagnosis**
+**AutoPsychDx**
 
 *Cut-off · IRT · DCM · One Command*
 
