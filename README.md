@@ -27,7 +27,7 @@ pipx ensurepath
 git clone https://github.com/JihongZ/llm-psychometric-diagnosis
 cd llm-psychometric-diagnosis
 
-# Install the diagnosis command
+# Install the diagnosis command (use pipx, not pip)
 pipx install -e .
 ```
 
