@@ -18,16 +18,29 @@ The agent reports prevalence by all three methods, flags key findings (e.g. meth
 
 **Requirements:** [Claude Code](https://claude.ai/code), tmux, R ≥ 4.0, Python ≥ 3.10.
 
+**macOS**
 ```bash
-# Install pipx if you don't have it
 brew install pipx
 pipx ensurepath
+```
 
-# Clone the repo
+**Linux**
+```bash
+python3 -m pip install --user pipx
+python3 -m pipx ensurepath
+```
+
+**Windows**
+```powershell
+python -m pip install --user pipx
+python -m pipx ensurepath
+```
+
+Then clone and install:
+
+```bash
 git clone https://github.com/JihongZ/llm-psychometric-diagnosis
 cd llm-psychometric-diagnosis
-
-# Install the diagnosis command (use pipx, not pip)
 pipx install -e .
 ```
 
