@@ -4,6 +4,16 @@ A framework for automatic psychometric diagnosis using a Claude Code agent. Give
 
 ---
 
+## Demo
+
+Running `diagnosis run Projects/PTSD_Forbes2018` spawns a tmux session where the Claude agent executes the full pipeline and streams results directly to the terminal:
+
+![Diagnosis demo — tmux session showing agent output and PHQ-9 report](Screenshots/Diagnosis_PTSD.png)
+
+The agent reports prevalence by all three methods, flags key findings (e.g. method divergence, ambiguous cases), and lists every generated output file.
+
+---
+
 ## How It Works
 
 ```

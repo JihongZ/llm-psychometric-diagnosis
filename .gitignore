@@ -8,8 +8,7 @@ Data/
 Projects/*/Output/
 Projects/*/responses.csv
 
-# Screenshots and scratch files
-Screenshots/
+# Scratch files
 
 # Python artifacts
 __pycache__/
