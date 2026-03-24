@@ -2,10 +2,6 @@
 
 A framework for automatic psychometric diagnosis using a Claude Code agent. Given item-level response data from any psychological scale, the agent applies three complementary methods — sum score cut-off, Item Response Theory (IRT), and Diagnostic Classification Models (DCM) — and generates a structured report with clinical interpretation.
 
-> **Limitations**
-> - **DCM:** Only the general diagnostic model (`CDM::gdm`) is currently supported. More specialised DCMs (DINA, DINO, GDINA) and multidimensional attribute structures are not yet implemented.
-> - **IRT:** Limited to the Graded Response Model (`mirt`, `itemtype = "graded"`). Other IRT models (2PL, 3PL, GPCM, nominal) are not automatically selected. The model requires **complete responses** — missing data must be handled in `prepare_responses.R` before running the pipeline.
-
 ---
 
 ## Demo
@@ -19,6 +15,10 @@ The agent reports prevalence by all three methods, flags key findings (e.g. meth
 The agent writes a structured `diagnosis_report.md` to `Output/` with instrument overview, item content, diagnostic results, and plain-language interpretation:
 
 ![Generated diagnosis_report.md showing PHQ-9 results for the Forbes 2018 sample](Screenshots/Diagnosis_Report.png)
+
+> **Limitations**
+> - **DCM:** Only the general diagnostic model (`CDM::gdm`) is currently supported. More specialised DCMs (DINA, DINO, GDINA) and multidimensional attribute structures are not yet implemented.
+> - **IRT:** Limited to the Graded Response Model (`mirt`, `itemtype = "graded"`). Other IRT models (2PL, 3PL, GPCM, nominal) are not automatically selected. The model requires **complete responses** — missing data must be handled in `prepare_responses.R` before running the pipeline.
 
 ---
 
