@@ -12,6 +12,10 @@ Running `diagnosis run Projects/PTSD_Forbes2018` spawns a tmux session where the
 
 The agent reports prevalence by all three methods, flags key findings (e.g. method divergence, ambiguous cases), and lists every generated output file.
 
+The agent writes a structured `diagnosis_report.md` to `Output/` with instrument overview, item content, diagnostic results, and plain-language interpretation:
+
+![Generated diagnosis_report.md showing PHQ-9 results for the Forbes 2018 sample](Screenshots/Diagnosis_Report.png)
+
 ---
 
 ## Setup
