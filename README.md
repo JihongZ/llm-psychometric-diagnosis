@@ -1,129 +1,196 @@
-# LLM-Assisted Psychometric Diagnosis
+<h1 align="center">🧠 LLM-Assisted Psychometric Diagnosis</h1>
 
-A framework for automatic psychometric diagnosis using a Claude Code agent. Given item-level response data from any psychological scale, the agent applies three complementary methods — sum score cut-off, Item Response Theory (IRT), and Diagnostic Classification Models (DCM) — and generates a structured report with clinical interpretation.
+<p align="center">
+  <strong>One command. Three methods. Automatic clinical diagnosis from item-level response data.</strong>
+</p>
+
+<p align="center">
+  <a href="#-quick-start"><img src="https://img.shields.io/badge/Quick_Start-3_steps-blue?style=for-the-badge" alt="Quick Start"></a>
+  <a href="#-example-depression-screening-forbes-2018"><img src="https://img.shields.io/badge/Example-PHQ--9_Depression-green?style=for-the-badge" alt="Example"></a>
+  <a href="#-diagnostic-methods"><img src="https://img.shields.io/badge/Methods-3_(Cut--off_|_IRT_|_DCM)-purple?style=for-the-badge" alt="Methods"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/python-≥3.10-blue?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/R-≥4.0-276DC3?logo=r&logoColor=white" alt="R">
+  <img src="https://img.shields.io/badge/Claude_Code-agent-blueviolet" alt="Claude Code">
+  <img src="https://img.shields.io/badge/tmux-session_management-orange" alt="tmux">
+  <img src="https://img.shields.io/badge/install-pipx-informational" alt="pipx">
+</p>
+
+**You provide the scale. The agent runs cut-off, IRT, and DCM — and writes the report.**
+
+Given item-level response data from any psychological scale, the agent applies three complementary diagnostic methods and generates a structured markdown report with prevalence estimates, method comparisons, and plain-language clinical interpretation.
 
 ---
 
-## Demo
+## 🎬 Demo
 
-Running `diagnosis run Projects/PTSD_Forbes2018` spawns a tmux session where the Claude agent executes the full pipeline and streams results directly to the terminal:
+<table align="center" width="100%">
+<tr>
+<td width="50%" align="center">
+
+**Agent running in tmux**
 
 ![Diagnosis demo — tmux session showing agent output and PHQ-9 report](Screenshots/Diagnosis_PTSD.png)
 
-The agent reports prevalence by all three methods, flags key findings (e.g. method divergence, ambiguous cases), and lists every generated output file.
+</td>
+<td width="50%" align="center">
 
-The agent writes a structured `diagnosis_report.md` to `Output/` with instrument overview, item content, diagnostic results, and plain-language interpretation:
+**Generated diagnosis_report.md**
 
 ![Generated diagnosis_report.md showing PHQ-9 results for the Forbes 2018 sample](Screenshots/Diagnosis_Report.png)
 
-> **Limitations**
-> - **DCM:** Only the general diagnostic model (`CDM::gdm`) is currently supported. More specialised DCMs (DINA, DINO, GDINA) and multidimensional attribute structures are not yet implemented.
-> - **IRT:** Limited to the Graded Response Model (`mirt`, `itemtype = "graded"`). Other IRT models (2PL, 3PL, GPCM, nominal) are not automatically selected. The model requires **complete responses** — missing data must be handled in `prepare_responses.R` before running the pipeline.
+</td>
+</tr>
+</table>
+
+> [!NOTE]
+> **Current Limitations**
+> - **DCM:** Only the general diagnostic model (`CDM::gdm`) is supported. DINA, DINO, and GDINA are not yet implemented.
+> - **IRT:** Limited to the Graded Response Model. Requires **complete responses** — handle missing data in `prepare_responses.R` before running.
 
 ---
 
-## Setup
+## 🤔 Why This Tool?
 
-**Requirements:** [Claude Code](https://claude.ai/code), tmux, R ≥ 4.0, Python ≥ 3.10.
+Psychometric diagnosis requires expertise across multiple frameworks. Researchers must manually choose between sum-score cut-offs, IRT, and DCM — each with different software, assumptions, and outputs. Reconciling disagreements between methods takes additional effort, and generating readable reports requires even more.
 
-**macOS**
-```bash
-brew install pipx
-pipx ensurepath
-```
+**What if an LLM agent could do all of this automatically?**
 
-**Linux**
-```bash
-python3 -m pip install --user pipx
-python3 -m pipx ensurepath
-```
+- 🚀 **Runs all three methods** — cut-off, IRT, and DCM in a single command
+- 📋 **Validates inputs automatically** — checks item IDs, response ranges, and missing data
+- 💬 **Flags method disagreements** — highlights ambiguous cases where methods diverge
+- 📊 **Generates a full report** — prevalence tables, item content, and clinical interpretation
+- 🔄 **Works with any scale** — instrument-agnostic, configured via a simple `items.csv`
 
-**Windows**
-```powershell
-python -m pip install --user pipx
-python -m pipx ensurepath
-```
+#### ✨ The Result?
+You set up the project folder. The agent diagnoses, interprets, and reports.
 
-Then clone and install:
+---
 
-```bash
-git clone https://github.com/JihongZ/llm-psychometric-diagnosis
-cd llm-psychometric-diagnosis
-pipx install -e .
-```
+## 📐 Diagnostic Methods
 
-Verify the install:
+<table align="center" width="100%">
+<tr>
+<td width="33%" align="center" style="vertical-align: top; padding: 15px;">
 
-```bash
-diagnosis --help
-```
+### 📏 Sum Score Cut-off
 
-Install R (if not already installed) — download from **https://cran.r-project.org**:
+<img src="https://img.shields.io/badge/Method_A-Cut--off-FF6B6B?style=for-the-badge" alt="Cut-off">
+
+Sums item responses per person and compares to a validated clinical threshold.
+
+**Key parameter:** `cutoff` (from `items.csv`)
+
+**Best for:** Quick screening when a published cut-off exists (e.g. PHQ-9 ≥ 10, PCL-5 ≥ 33)
+
+</td>
+<td width="33%" align="center" style="vertical-align: top; padding: 15px;">
+
+### 📈 Item Response Theory
+
+<img src="https://img.shields.io/badge/Method_B-IRT_(GRM)-4ECDC4?style=for-the-badge" alt="IRT">
+
+Fits a Graded Response Model using `mirt`. Estimates latent trait θ with standard errors per person.
+
+**Key parameter:** `theta_cutoff` (default: 0)
+
+**Best for:** Scales with items of varying quality; when measurement uncertainty matters
+
+</td>
+<td width="33%" align="center" style="vertical-align: top; padding: 15px;">
+
+### 🔬 Diagnostic Classification
+
+<img src="https://img.shields.io/badge/Method_C-DCM_(GDM)-C77DFF?style=for-the-badge" alt="DCM">
+
+Fits a log-linear cognitive diagnosis model using `CDM::gdm`. Returns posterior class membership probability per person.
+
+**Key parameter:** `prob_cutoff` (default: 0.5)
+
+**Best for:** When the construct is naturally categorical (present/absent)
+
+</td>
+</tr>
+</table>
+
+A person is flagged as diagnosed if **at least 2 of 3 methods** agree (**consensus diagnosis**). Persons where only 1 method flags them are marked ambiguous in the report.
+
+---
+
+## ⚡ Quick Start
+
+**Requirements:** [Claude Code](https://claude.ai/claude-code), tmux, R ≥ 4.0, Python ≥ 3.10.
+
+**Step 1 — Install pipx**
+
+| Platform | Command |
+|---|---|
+| macOS | `brew install pipx && pipx ensurepath` |
+| Linux | `python3 -m pip install --user pipx && python3 -m pipx ensurepath` |
+| Windows | `python -m pip install --user pipx && python -m pipx ensurepath` |
+
+**Step 2 — Install R**
+
+Download from **https://cran.r-project.org** or:
 
 | Platform | Command |
 |---|---|
 | macOS | `brew install r` |
 | Linux (Debian/Ubuntu) | `sudo apt install r-base` |
-| Windows | Download and run the installer from CRAN |
+| Windows | Installer from CRAN |
 
-Then install the required R packages:
-
+Then install R packages:
 ```r
 install.packages(c("mirt", "CDM"))
 ```
 
+**Step 3 — Install the diagnosis command**
+
+```bash
+git clone https://github.com/JihongZ/llm-psychometric-diagnosis
+cd llm-psychometric-diagnosis
+pipx install -e .   # use pipx, not pip
+```
+
+Verify:
+```bash
+diagnosis --help
+```
+
 ---
 
-## Commands
+## 🖥️ CLI Reference
+
+<details>
+<summary><h3>Commands</h3></summary>
 
 | Command | Description |
 |---|---|
 | `diagnosis run <folder>` | Run the full pipeline (attaches to tmux session) |
 | `diagnosis run <folder> --clear` | Delete `Output/` then re-run |
-| `diagnosis run <folder> --no-attach` | Run in background without attaching |
+| `diagnosis run <folder> --no-attach` | Run in background, show spinner until done |
 | `diagnosis attach <name>` | Re-attach to a running session |
 | `diagnosis ls` | List all active diagnosis sessions |
 | `diagnosis kill <name>` | Stop a running session |
 | `diagnosis version` | Show installed version |
 
 `<folder>` is the path to your project folder (e.g. `Projects/PTSD_Forbes2018`).
-`<name>` is just the folder name, not the full path (e.g. `PTSD_Forbes2018`).
+`<name>` is the folder name only (e.g. `PTSD_Forbes2018`).
+
+</details>
 
 ---
 
-## How It Works
+## 📁 Preparing a New Project
 
-```
-project_folder/
-  items.csv             ← item metadata you provide
-  prepare_responses.R   ← data loading script (agent generates if missing)
-  responses.csv         ← auto-generated by prepare_responses.R
-  Output/               ← auto-generated by the agent
-    [scale]_diagnosis.R
-    [scale]_diagnosis_results.csv
-    [scale]_diagnosis_output.txt
-    diagnosis_report.md
-```
-
-When you run `diagnosis run <folder>`, the agent will:
-
-1. Generate `prepare_responses.R` if it does not exist, then run it to produce `responses.csv`
-2. Validate that item IDs in `items.csv` match columns in `responses.csv`
-3. Generate a self-contained `[scale]_diagnosis.R` for each scale found in `items.csv`
-4. Execute each R script via `Rscript`
-5. Write `Output/diagnosis_report.md` with results and plain-language interpretation
-
-The agent runs inside a **tmux session** (`diagnosis-{project}`) so you can watch it work in real-time, detach and re-attach, or run it in the background.
-
----
-
-## Preparing a New Project
-
-Create a folder under `Projects/` with two files:
+Create a folder anywhere with two files:
 
 ### `items.csv`
 
-One row per item. Required columns:
+One row per item:
 
 | Column | Description |
 |---|---|
@@ -138,12 +205,11 @@ One row per item. Required columns:
 item_id,item_text,scale,cutoff,response_min,response_max
 PCL1,Repeated disturbing and unwanted memories of the stressful experience,PCL-5,33,0,4
 PCL2,Repeated disturbing dreams of the stressful experience,PCL-5,33,0,4
-...
 ```
 
 ### `prepare_responses.R` (optional)
 
-A project-specific script that loads raw data and writes `responses.csv`. If missing, the agent generates a template. The script must produce a CSV with rows = persons and columns = `item_id` values from `items.csv`.
+Loads raw data and writes `responses.csv` (rows = persons, columns = `item_id`). If missing, the agent generates a template. Example:
 
 ```r
 raw       <- read.csv("path/to/raw_data.csv")
@@ -160,23 +226,36 @@ diagnosis run Projects/your_study
 
 ---
 
-## Diagnostic Methods
+## 🏗️ How It Works
 
-### Method A — Sum Score Cut-off
-Sums item responses per person and compares to a validated clinical threshold. Fast and interpretable; requires a published cut-off for the instrument.
+```
+  items.csv + prepare_responses.R
+              │
+              ▼
+    diagnosis run <folder>
+              │
+              ├─── Method A: Sum Score Cut-off ──► dx_cutoff (0/1)
+              │
+              ├─── Method B: IRT (Graded Response Model) ──► dx_irt (0/1) + θ ± SE
+              │
+              └─── Method C: DCM (CDM::gdm) ──► dx_dcm (0/1) + P(diagnosed)
+                             │
+                             ▼
+                 Consensus: diagnosed if ≥ 2/3 methods agree
+                             │
+                             ▼
+              Output/
+                [scale]_diagnosis.R          ← generated R script
+                [scale]_diagnosis_results.csv ← person-level results
+                [scale]_diagnosis_output.txt  ← raw report text
+                diagnosis_report.md          ← full report with interpretation
+```
 
-### Method B — Item Response Theory (IRT)
-Fits a Graded Response Model (polytomous items) or 2PL model (binary items) using `mirt`. Estimates a latent trait score (θ) per person with standard errors. Classifies persons above a θ threshold (default: population mean, θ = 0).
-
-### Method C — Diagnostic Classification Model (DCM)
-Fits a log-linear cognitive diagnosis model (LCDM/GDM) using `CDM`. Returns a posterior probability of class membership per person. Classifies persons with P(diagnosed) ≥ 0.5.
-
-### Consensus Diagnosis
-A person is flagged as diagnosed if **at least 2 of 3 methods** agree. Persons where only 1 method flags them are marked ambiguous and highlighted in the report.
+The agent runs inside a **tmux session** (`diagnosis-{project}`). Skill files in `diagnosis/skills/` define the agent workflow — edit them to change behaviour for all projects.
 
 ---
 
-## Example: Depression Screening (Forbes 2018)
+## 📊 Example: Depression Screening (Forbes 2018)
 
 `Projects/PTSD_Forbes2018/` demonstrates the workflow using publicly available PHQ-9 data from [Forbes et al. (2018)](https://osf.io/6fk3v/).
 
@@ -184,27 +263,27 @@ A person is flagged as diagnosed if **at least 2 of 3 methods** agree. Persons w
 diagnosis run Projects/PTSD_Forbes2018
 ```
 
-`prepare_responses.R` downloads the raw data from OSF automatically on first run. All output is written to `Projects/PTSD_Forbes2018/Output/`.
+`prepare_responses.R` downloads the data from OSF automatically on first run. All output is written to `Projects/PTSD_Forbes2018/Output/`.
 
 ---
 
-## How the Agent Works
+## 📖 Acknowledgements
 
-`diagnosis run` is a thin Python wrapper (built with [Typer](https://typer.tiangolo.com/)) that:
-
-1. Validates the project folder (`items.csv` must exist)
-2. Loads skill files bundled with the package from `diagnosis/skills/`
-3. Builds a prompt combining the agent workflow and R function definitions
-4. Creates a tmux session and runs `claude --dangerously-skip-permissions -p "<prompt>"` inside it
-5. Attaches your terminal to the session
-
-The agent reads files, generates and executes R scripts, and writes `Output/diagnosis_report.md`.
-
-To customise agent behaviour, edit `diagnosis/skills/diagnosis.md` (workflow) or `diagnosis/skills/psychometric-diagnosis.md` (R functions).
+- [Forbes et al. (2018)](https://osf.io/6fk3v/) — PHQ-9 and GAD-7 community sample dataset used in the example project
+- [`mirt`](https://cran.r-project.org/package=mirt) — R package for Item Response Theory (IRT) models
+- [`CDM`](https://cran.r-project.org/package=CDM) — R package for Cognitive Diagnosis Models (DCM)
+- [ClawTeam](https://github.com/HKUDS/ClawTeam) — architectural inspiration for the tmux-based agent CLI
+- [Claude Code](https://claude.ai/claude-code) — LLM agent runtime
 
 ---
 
-## Project Structure
+## 📄 License
+
+MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
+
+---
+
+## 🗂️ Project Structure
 
 ```
 .
@@ -219,20 +298,26 @@ To customise agent behaviour, edit `diagnosis/skills/diagnosis.md` (workflow) or
 │       └── psychometric-diagnosis.md   # R function definitions
 ├── pyproject.toml                       # package metadata and entry point
 ├── .claude/
-│   └── commands/                        # same skills exposed as Claude Code slash commands
-│       ├── diagnosis.md
-│       └── psychometric-diagnosis.md
+│   └── commands/                        # same skills as Claude Code slash commands
 ├── Projects/
 │   └── PTSD_Forbes2018/                 # example project
-│       ├── items.csv                    # item metadata (scale, cutoff, response range)
-│       ├── prepare_responses.R          # downloads data from OSF and writes responses.csv
-│       └── Output/                      # auto-generated — not tracked by git
-│           ├── PHQ-9_diagnosis.R
-│           ├── PHQ-9_diagnosis_results.csv
-│           ├── PHQ-9_diagnosis_output.txt
-│           └── diagnosis_report.md
+│       ├── items.csv                    # item metadata
+│       ├── prepare_responses.R          # downloads OSF data → responses.csv
+│       └── Output/                      # auto-generated (git-ignored)
 ├── Screenshots/
-│   ├── Diagnosis_PTSD.png               # demo: tmux session with agent running
-│   └── Diagnosis_Report.png             # demo: generated diagnosis_report.md
+│   ├── Diagnosis_PTSD.png
+│   └── Diagnosis_Report.png
 └── README.md
 ```
+
+---
+
+<div align="center">
+
+**LLM-Assisted Psychometric Diagnosis**
+
+*Cut-off · IRT · DCM · One Command*
+
+If you find this project useful, please consider giving it a ⭐
+
+</div>
