@@ -11,6 +11,13 @@ Projects/*/responses.csv
 # Screenshots and scratch files
 Screenshots/
 
+# Python artifacts
+__pycache__/
+*.egg-info/
+dist/
+build/
+*.pyc
+
 # R session artifacts
 .Rhistory
 .RData

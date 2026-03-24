@@ -34,18 +34,15 @@ The agent will:
 
 ## Setup
 
-**Requirements:** [Claude Code](https://claude.ai/code), R, and the R packages `mirt` and `CDM`.
+**Requirements:** [Claude Code](https://claude.ai/code), tmux, R ≥ 4.0, Python ≥ 3.10.
 
 ```bash
 # Clone the repo
 git clone https://github.com/JihongZ/llm-psychometric-diagnosis
 cd llm-psychometric-diagnosis
 
-# Make the command executable
-chmod +x bin/diagnosis
-
-# Optionally add to PATH
-export PATH="$PATH:$(pwd)/bin"
+# Install the diagnosis command
+pip install -e .
 ```
 
 Install R packages once:
@@ -140,24 +137,32 @@ The `Projects/PTSD_Forbes2018/` folder demonstrates the workflow using publicly 
 
 ---
 
-## Flags
+## Commands
 
 ```bash
-./bin/diagnosis <project_folder>          # run diagnosis
-./bin/diagnosis <project_folder> --clear  # delete Output/ then re-run
+diagnosis run <project_folder>           # run diagnosis (attaches to tmux session)
+diagnosis run <project_folder> --clear   # delete Output/ then re-run
+diagnosis run <project_folder> --no-attach  # run in background without attaching
+diagnosis attach <project_name>          # re-attach to a running session
+diagnosis ls                             # list all active diagnosis sessions
+diagnosis kill <project_name>            # stop a running session
+diagnosis version                        # show version
 ```
 
 ---
 
 ## How the Agent Works
 
-The `bin/diagnosis` script is a thin shell wrapper that:
-1. Validates the project folder structure
-2. Reads `.claude/commands/diagnosis.md` (the agent workflow) and `.claude/commands/psychometric-diagnosis.md` (the R functions)
-3. Passes them as a prompt to `claude -p` (Claude Code non-interactive mode)
-4. The Claude agent reads files, writes R scripts, runs them, and writes the report
+The `diagnosis run` command:
+1. Validates the project folder (`items.csv` must exist)
+2. Loads skill files bundled with the package (`diagnosis/skills/`)
+3. Builds a prompt combining the agent workflow and R function definitions
+4. Creates a **tmux session** named `diagnosis-{project}` and launches `claude --dangerously-skip-permissions -p "<prompt>"` inside it
+5. Attaches to the session so you can watch the agent work in real-time
 
-The skill files in `.claude/commands/` are the single source of truth — update them to change how the agent behaves for all projects.
+The agent then reads files, generates R scripts, executes them via `Rscript`, and writes `Output/diagnosis_report.md`.
+
+Update `diagnosis/skills/diagnosis.md` or `diagnosis/skills/psychometric-diagnosis.md` to change agent behaviour for all projects.
 
 ---
 
@@ -165,12 +170,15 @@ The skill files in `.claude/commands/` are the single source of truth — update
 
 ```
 .
-├── bin/
-│   └── diagnosis                        # CLI entry point
-├── .claude/
-│   └── commands/
+├── diagnosis/                           # Python package
+│   ├── cli.py                           # Typer CLI (run / attach / kill / ls)
+│   ├── tmux.py                          # tmux session management
+│   ├── skills.py                        # skill file loader
+│   └── skills/
 │       ├── diagnosis.md                 # agent workflow definition
 │       └── psychometric-diagnosis.md   # R function definitions
+├── pyproject.toml                       # pip-installable package
+├── .claude/commands/                    # same skills as slash commands in Claude Code
 └── Projects/
     └── PTSD_Forbes2018/                 # example project
         ├── items.csv
