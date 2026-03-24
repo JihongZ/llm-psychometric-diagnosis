@@ -50,7 +50,15 @@ Verify the install:
 diagnosis --help
 ```
 
-Install R dependencies once:
+Install R (if not already installed) — download from **https://cran.r-project.org**:
+
+| Platform | Command |
+|---|---|
+| macOS | `brew install r` |
+| Linux (Debian/Ubuntu) | `sudo apt install r-base` |
+| Windows | Download and run the installer from CRAN |
+
+Then install the required R packages:
 
 ```r
 install.packages(c("mirt", "CDM"))
