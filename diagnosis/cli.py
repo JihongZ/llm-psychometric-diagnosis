@@ -10,7 +10,7 @@ from rich.panel import Panel
 from rich.table import Table
 
 from diagnosis import __version__
-from diagnosis import skills, tmux
+from diagnosis import skill_loader as skills, tmux
 
 app = typer.Typer(
     name="diagnosis",
