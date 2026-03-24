@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Raw data (large files, downloaded at runtime)
+Data/
+
+# Generated outputs — re-created by running diagnosis
+Projects/*/Output/
+Projects/*/responses.csv
+
+# Screenshots and scratch files
+Screenshots/
+
+# R session artifacts
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj

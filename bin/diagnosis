@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+# diagnosis <project_folder> [--clear]
+#
+# Runs the psychometric diagnosis agent on a project folder containing:
+#   items.csv           — item metadata (item_id, item_text, scale, cutoff, response_min, response_max)
+#   prepare_responses.R — project-specific data preparation script
+#
+# The agent will:
+#   1. Generate prepare_responses.R if missing, then run it to produce responses.csv
+#   2. Validate items.csv and responses.csv
+#   3. Generate Output/{scale}_diagnosis.R for each scale found
+#   4. Execute each R script via Rscript
+#   5. Write Output/diagnosis_report.md summarising the results
+#
+# Flags:
+#   --clear   Delete all files in Output/ before running
+#
+# Usage:
+#   ./bin/diagnosis Projects/PTSD_Forbes2018
+#   ./bin/diagnosis Projects/PTSD_Forbes2018 --clear
+
+set -euo pipefail
+
+# --- Parse arguments ----------------------------------------------------------
+
+PROJECT_FOLDER=""
+CLEAR=false
+
+for arg in "$@"; do
+  case "$arg" in
+    --clear) CLEAR=true ;;
+    -*) echo "Unknown flag: $arg" >&2; exit 1 ;;
+    *)  PROJECT_FOLDER="$arg" ;;
+  esac
+done
+
+if [[ -z "$PROJECT_FOLDER" ]]; then
+  echo "Usage: diagnosis <project_folder> [--clear]" >&2
+  exit 1
+fi
+
+# --- Validate project folder --------------------------------------------------
+
+if [[ ! -d "$PROJECT_FOLDER" ]]; then
+  echo "Error: folder not found: $PROJECT_FOLDER" >&2
+  exit 1
+fi
+
+if [[ ! -f "$PROJECT_FOLDER/items.csv" ]]; then
+  echo "Error: items.csv not found in $PROJECT_FOLDER" >&2
+  echo "Expected columns: item_id, item_text, scale, cutoff, response_min, response_max" >&2
+  exit 1
+fi
+
+# --- Clear Output/ if requested -----------------------------------------------
+
+OUTPUT_DIR="$PROJECT_FOLDER/Output"
+
+if [[ "$CLEAR" == true ]]; then
+  if [[ -d "$OUTPUT_DIR" ]]; then
+    echo "Clearing Output/ in $PROJECT_FOLDER..."
+    rm -rf "$OUTPUT_DIR"
+    echo "Done."
+  else
+    echo "Output/ does not exist — nothing to clear."
+  fi
+fi
+
+# --- Resolve paths ------------------------------------------------------------
+
+ABS_PROJECT_FOLDER="$(cd "$PROJECT_FOLDER" && pwd)"
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SKILL_FILE="$REPO_ROOT/.claude/commands/diagnosis.md"
+PSYCHOMETRIC_SKILL="$REPO_ROOT/.claude/commands/psychometric-diagnosis.md"
+
+if [[ ! -f "$SKILL_FILE" ]]; then
+  echo "Error: skill file not found at $SKILL_FILE" >&2
+  exit 1
+fi
+
+# --- Build prompt -------------------------------------------------------------
+
+DIAGNOSIS_SKILL=$(cat "$SKILL_FILE")
+PSYCHOMETRIC_FUNCTIONS=$(cat "$PSYCHOMETRIC_SKILL")
+
+PROMPT=$(cat <<EOF
+You are a psychometric diagnosis agent. A user has run:
+
+    diagnosis $PROJECT_FOLDER
+
+The absolute path to the project folder is: $ABS_PROJECT_FOLDER
+
+Follow the workflow below exactly.
+
+---
+
+$DIAGNOSIS_SKILL
+
+---
+
+The R functions you must inline into each generated script are defined here:
+
+$PSYCHOMETRIC_FUNCTIONS
+EOF
+)
+
+# --- Run Claude agent ---------------------------------------------------------
+
+echo "Running diagnosis agent on: $ABS_PROJECT_FOLDER"
+echo "---"
+
+claude -p "$PROMPT" \
+  --allowedTools "Read,Write,Bash,Glob,Grep" \
+  --add-dir "$ABS_PROJECT_FOLDER" \
+  --add-dir "$REPO_ROOT"
