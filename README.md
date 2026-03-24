@@ -136,9 +136,6 @@ diagnosis --help
 
 ## 🖥️ CLI Reference
 
-<details>
-<summary><h3>Commands</h3></summary>
-
 | Command | Description |
 |---|---|
 | `diagnosis run <folder>` | Run the full pipeline (attaches to tmux session) |
@@ -151,8 +148,6 @@ diagnosis --help
 
 `<folder>` is the path to your project folder (e.g. `Projects/PTSD_Forbes2018`).
 `<name>` is the folder name only (e.g. `PTSD_Forbes2018`).
-
-</details>
 
 ---
 
