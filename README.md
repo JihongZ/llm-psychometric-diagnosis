@@ -25,34 +25,6 @@ Given item-level response data from any psychological scale, the agent applies t
 
 ---
 
-## 🎬 Demo
-
-<table align="center" width="100%">
-<tr>
-<td width="50%" align="center">
-
-**Agent running in tmux**
-
-![Diagnosis demo — tmux session showing agent output and PHQ-9 report](Screenshots/Diagnosis_PTSD.png)
-
-</td>
-<td width="50%" align="center">
-
-**Generated diagnosis_report.md**
-
-![Generated diagnosis_report.md showing PHQ-9 results for the Forbes 2018 sample](Screenshots/Diagnosis_Report.png)
-
-</td>
-</tr>
-</table>
-
-> [!NOTE]
-> **Current Limitations**
-> - **DCM:** Only the general diagnostic model (`CDM::gdm`) is supported. DINA, DINO, and GDINA are not yet implemented.
-> - **IRT:** Limited to the Graded Response Model. Requires **complete responses** — handle missing data in `prepare_responses.R` before running.
-
----
-
 ## 🤔 Why This Tool?
 
 Psychometric diagnosis requires expertise across multiple frameworks. Researchers must manually choose between sum-score cut-offs, IRT, and DCM — each with different software, assumptions, and outputs. Reconciling disagreements between methods takes additional effort, and generating readable reports requires even more.
@@ -264,6 +236,30 @@ diagnosis run Projects/PTSD_Forbes2018
 ```
 
 `prepare_responses.R` downloads the data from OSF automatically on first run. All output is written to `Projects/PTSD_Forbes2018/Output/`.
+
+<table align="center" width="100%">
+<tr>
+<td width="50%" align="center">
+
+**Agent running in tmux**
+
+![Diagnosis demo — tmux session showing agent output and PHQ-9 report](Screenshots/Diagnosis_PTSD.png)
+
+</td>
+<td width="50%" align="center">
+
+**Generated diagnosis_report.md**
+
+![Generated diagnosis_report.md showing PHQ-9 results for the Forbes 2018 sample](Screenshots/Diagnosis_Report.png)
+
+</td>
+</tr>
+</table>
+
+> [!NOTE]
+> **Current Limitations**
+> - **DCM:** Only the general diagnostic model (`CDM::gdm`) is supported. DINA, DINO, and GDINA are not yet implemented.
+> - **IRT:** Limited to the Graded Response Model. Requires **complete responses** — handle missing data in `prepare_responses.R` before running.
 
 ---
 
