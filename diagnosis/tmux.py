@@ -1,10 +1,12 @@
 """tmux backend: create a session and run the Claude agent inside it."""
 
+import os
 import shlex
 import shutil
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 
@@ -33,6 +35,18 @@ def is_running(session: str) -> bool:
     return result.returncode == 0
 
 
+def _inside_tmux() -> bool:
+    return bool(os.environ.get("TMUX"))
+
+
+def _switch_or_attach(session: str) -> None:
+    """Switch to session if already inside tmux, otherwise attach."""
+    if _inside_tmux():
+        subprocess.run(["tmux", "switch-client", "-t", session])
+    else:
+        subprocess.run(["tmux", "attach-session", "-t", session])
+
+
 def kill(session: str) -> bool:
     if is_running(session):
         subprocess.run(["tmux", "kill-session", "-t", session], check=True)
@@ -40,10 +54,27 @@ def kill(session: str) -> bool:
     return False
 
 
+def _wait_for_finish(session: str, poll_interval: float = 3.0) -> None:
+    """Block until the tmux session ends, printing a spinner."""
+    frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"]
+    i = 0
+    print()
+    while is_running(session):
+        print(f"\r  {frames[i % len(frames)]}  Agent running… "
+              f"(tmux attach -t {session} to watch)", end="", flush=True)
+        time.sleep(poll_interval)
+        i += 1
+    print("\r  ✓  Agent finished.                                        ")
+
+
 def spawn(project_folder: str, prompt: str, attach: bool = True) -> str:
     """
     Create a tmux session, write the prompt to a temp file, and run:
         claude --dangerously-skip-permissions -p "$(cat prompt_file)"
+
+    If attach=True and inside an existing tmux session, switch to it.
+    If attach=True and outside tmux, attach to it.
+    If attach=False, poll and print a spinner until the session ends.
 
     Returns the session name.
     """
@@ -63,8 +94,9 @@ def spawn(project_folder: str, prompt: str, attach: bool = True) -> str:
     prompt_file.write_text(prompt, encoding="utf-8")
 
     cmd = (
+        f'echo "--- Diagnosis agent started ---" && '
         f'claude --dangerously-skip-permissions -p "$(cat {shlex.quote(str(prompt_file))})"; '
-        f'echo "--- Agent finished. Press any key to exit ---"; '
+        f'echo ""; echo "--- Agent finished. Press any key to close ---"; '
         f'read -n 1; '
         f'rm -f {shlex.quote(str(prompt_file))}'
     )
@@ -79,12 +111,14 @@ def spawn(project_folder: str, prompt: str, attach: bool = True) -> str:
         check=True,
     )
 
-    print(f"Diagnosis agent started in tmux session: {session}")
+    print(f"  Session: {session}")
     print(f"  Attach:  tmux attach -t {session}")
     print(f"  Kill:    diagnosis kill {Path(project_folder).name}")
-    print()
 
     if attach:
-        subprocess.run(["tmux", "attach-session", "-t", session])
+        print("  Switching to tmux session…")
+        _switch_or_attach(session)
+    else:
+        _wait_for_finish(session)
 
     return session

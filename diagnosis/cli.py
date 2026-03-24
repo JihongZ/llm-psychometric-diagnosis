@@ -86,8 +86,7 @@ def attach(
     if not tmux.is_running(session):
         console.print(f"[red]No running session:[/red] {session}")
         raise typer.Exit(1)
-    import subprocess
-    subprocess.run(["tmux", "attach-session", "-t", session])
+    tmux._switch_or_attach(session)
 
 
 @app.command()
