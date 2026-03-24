@@ -2,6 +2,10 @@
 
 A framework for automatic psychometric diagnosis using a Claude Code agent. Given item-level response data from any psychological scale, the agent applies three complementary methods — sum score cut-off, Item Response Theory (IRT), and Diagnostic Classification Models (DCM) — and generates a structured report with clinical interpretation.
 
+> **Limitations**
+> - **DCM:** Only the general diagnostic model (`CDM::gdm`) is currently supported. More specialised DCMs (DINA, DINO, GDINA) and multidimensional attribute structures are not yet implemented.
+> - **IRT:** Limited to the Graded Response Model (`mirt`, `itemtype = "graded"`). Other IRT models (2PL, 3PL, GPCM, nominal) are not automatically selected. The model requires **complete responses** — missing data must be handled in `prepare_responses.R` before running the pipeline.
+
 ---
 
 ## Demo
@@ -181,13 +185,6 @@ diagnosis run Projects/PTSD_Forbes2018
 ```
 
 `prepare_responses.R` downloads the raw data from OSF automatically on first run. All output is written to `Projects/PTSD_Forbes2018/Output/`.
-
----
-
-## Limitations
-
-- **DCM:** Only the general diagnostic model (`CDM::gdm`) is currently supported. More specialised DCMs (DINA, DINO, GDINA) and multidimensional attribute structures are not yet implemented.
-- **IRT:** Limited to the Graded Response Model (`mirt`, `itemtype = "graded"`). Other IRT models (2PL, 3PL, GPCM, nominal) are not automatically selected. The model also requires **complete responses** — items with missing data will cause an error; imputation must be handled in `prepare_responses.R` before running the pipeline.
 
 ---
 
