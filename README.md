@@ -184,6 +184,13 @@ diagnosis run Projects/PTSD_Forbes2018
 
 ---
 
+## Limitations
+
+- **DCM:** Only the general diagnostic model (`CDM::gdm`) is currently supported. More specialised DCMs (DINA, DINO, GDINA) and multidimensional attribute structures are not yet implemented.
+- **IRT:** Limited to the Graded Response Model (`mirt`, `itemtype = "graded"`). Other IRT models (2PL, 3PL, GPCM, nominal) are not automatically selected. The model also requires **complete responses** — items with missing data will cause an error; imputation must be handled in `prepare_responses.R` before running the pipeline.
+
+---
+
 ## How the Agent Works
 
 `diagnosis run` is a thin Python wrapper (built with [Typer](https://typer.tiangolo.com/)) that:
