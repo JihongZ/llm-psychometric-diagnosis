@@ -204,18 +204,31 @@ To customise agent behaviour, edit `diagnosis/skills/diagnosis.md` (workflow) or
 
 ```
 .
-├── diagnosis/                           # Python package (pip install -e .)
+├── diagnosis/                           # Python package (pipx install -e .)
 │   ├── cli.py                           # Typer CLI: run / attach / kill / ls / version
 │   ├── tmux.py                          # tmux session management
 │   ├── skill_loader.py                  # loads bundled skill files
+│   ├── __init__.py
+│   ├── __main__.py
 │   └── skills/
 │       ├── diagnosis.md                 # agent workflow definition
 │       └── psychometric-diagnosis.md   # R function definitions
 ├── pyproject.toml                       # package metadata and entry point
-├── .claude/commands/                    # same skills as Claude Code slash commands
-└── Projects/
-    └── PTSD_Forbes2018/                 # example project
-        ├── items.csv
-        ├── prepare_responses.R
-        └── README.md
+├── .claude/
+│   └── commands/                        # same skills exposed as Claude Code slash commands
+│       ├── diagnosis.md
+│       └── psychometric-diagnosis.md
+├── Projects/
+│   └── PTSD_Forbes2018/                 # example project
+│       ├── items.csv                    # item metadata (scale, cutoff, response range)
+│       ├── prepare_responses.R          # downloads data from OSF and writes responses.csv
+│       └── Output/                      # auto-generated — not tracked by git
+│           ├── PHQ-9_diagnosis.R
+│           ├── PHQ-9_diagnosis_results.csv
+│           ├── PHQ-9_diagnosis_output.txt
+│           └── diagnosis_report.md
+├── Screenshots/
+│   ├── Diagnosis_PTSD.png               # demo: tmux session with agent running
+│   └── Diagnosis_Report.png             # demo: generated diagnosis_report.md
+└── README.md
 ```
