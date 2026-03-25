@@ -125,7 +125,7 @@ install.packages(c("mirt", "CDM"))
 
 ```bash
 git clone https://github.com/JihongZ/AutoPsychDx
-cd llm-psychometric-diagnosis
+cd AutoPsychDx
 pipx install -e .   # use pipx, not pip
 ```
 
