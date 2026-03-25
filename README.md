@@ -255,8 +255,78 @@ diagnosis run Projects/PTSD_Forbes2018
 
 > [!NOTE]
 > **Current Limitations**
-> - **DCM:** Only the general diagnostic model (`CDM::gdm`) is supported. DINA, DINO, and GDINA are not yet implemented.
+> - **Unidimensional only:** All three methods currently assume a single latent construct. Multidimensional scales (e.g., instruments with subscales measuring distinct attributes) are not yet supported.
+> - **DCM:** Only the general diagnostic model (`CDM::gdm`) is supported. LCDM, GDINA, DINA, and DINO are not yet implemented.
 > - **IRT:** Limited to the Graded Response Model. Requires **complete responses** — handle missing data in `prepare_responses.R` before running.
+
+---
+
+## 🗺️ Roadmap
+
+<table align="center" width="100%">
+<tr>
+<th>Phase</th>
+<th>Feature</th>
+<th>Details</th>
+</tr>
+<tr>
+<td>v0.2</td>
+<td>Multidimensional DCMs</td>
+<td>
+
+- User-specified Q-matrix in `items.csv` (item × attribute mapping)
+- LCDM via `CDM::gdm` with multi-attribute Q-matrix
+- GDINA via `GDINA::GDINA` for flexible item–attribute interactions
+- DINA / DINO as constrained special cases
+- Attribute-level diagnostic profiles per person
+
+</td>
+</tr>
+<tr>
+<td>v0.3</td>
+<td>Multidimensional IRT</td>
+<td>
+
+- MIRT (multidimensional GRM) via `mirt` with exploratory or confirmatory specification
+- Subscale-level θ estimates with SEs
+- Per-subscale cut-off and consensus diagnosis
+
+</td>
+</tr>
+<tr>
+<td>v0.4</td>
+<td>Additional IRT models</td>
+<td>
+
+- 2PL for binary items
+- GPCM / PCM for alternative polytomous models
+- Automatic model selection based on item format
+
+</td>
+</tr>
+<tr>
+<td>v0.5</td>
+<td>Missing data & robustness</td>
+<td>
+
+- Full-information maximum likelihood (FIML) for IRT
+- Multiple imputation support
+- Longitudinal multi-timepoint comparison
+
+</td>
+</tr>
+<tr>
+<td>Future</td>
+<td>Multi-backend & validation</td>
+<td>
+
+- Support for additional LLM backends (OpenAI, Gemini)
+- External validation against structured clinical interviews
+- Automated sensitivity analysis across cut-off thresholds
+
+</td>
+</tr>
+</table>
 
 ---
 
