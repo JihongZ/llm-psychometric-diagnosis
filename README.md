@@ -96,7 +96,7 @@ A person is flagged as diagnosed if **at least 2 of 3 methods** agree (**consens
 
 ## ⚡ Quick Start
 
-**Requirements:** [Claude Code](https://github.com/anthropics/claude-code), tmux, R ≥ 4.0, Python ≥ 3.10.
+**Requirements:** [Claude Code](https://github.com/anthropics/claude-code), [tmux](https://github.com/tmux/tmux/wiki), R ≥ 4.0, Python ≥ 3.10.
 
 **Step 1 — Install pipx**
 
