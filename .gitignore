@@ -4,6 +4,14 @@
 # Raw data (large files, downloaded at runtime)
 Data/
 
+# Manuscript and analysis code (not part of the package)
+Manuscript/
+Code/
+
+# Rendered README artifacts
+README.html
+README_files/
+
 # Generated outputs — re-created by running diagnosis
 Projects/*/Output/
 Projects/*/responses.csv

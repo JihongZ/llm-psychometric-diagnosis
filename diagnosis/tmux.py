@@ -18,7 +18,18 @@ def _require_tmux() -> None:
 
 def _require_claude() -> None:
     if not shutil.which("claude"):
-        print("Error: claude CLI not found. Install Claude Code first.", file=sys.stderr)
+        print(
+            "Error: 'claude' command not found.\n"
+            "\n"
+            "Possible causes:\n"
+            "  1. Claude Code is not installed.\n"
+            "     Install it: https://github.com/anthropics/claude-code\n"
+            "  2. Claude Code is installed but not in your PATH.\n"
+            "     Try: which claude   (or: npm list -g @anthropic-ai/claude-code)\n"
+            "     If installed via npm, ensure the npm global bin directory is in your PATH:\n"
+            "       export PATH=\"$(npm prefix -g)/bin:$PATH\"",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 
