@@ -155,9 +155,9 @@ diagnosis --help
 
 ## 📁 Preparing a New Project
 
-Create a folder anywhere with two files:
+Create a folder with up to three files:
 
-### `items.csv`
+### `items.csv` (required)
 
 One row per item:
 
@@ -176,15 +176,37 @@ PCL1,Repeated disturbing and unwanted memories of the stressful experience,PCL-5
 PCL2,Repeated disturbing dreams of the stressful experience,PCL-5,33,0,4
 ```
 
+### Raw data
+
+The raw data file containing participant responses is required before running the pipeline. It can come from two sources:
+
+| Source | How it works |
+|---|---|
+| **Local file** | Place `raw_data.csv` (or any `.csv` / `.sav` / `.rds`) directly in the project folder. Reference it in `prepare_responses.R`. |
+| **Online repository** | `prepare_responses.R` downloads the data at runtime (e.g. from OSF, GitHub, or a URL). No local file needed. |
+
+The included example (`Projects/PTSD_Forbes2018`) uses the online approach — `prepare_responses.R` downloads data from OSF automatically on first run.
+
 ### `prepare_responses.R` (optional)
 
-Loads raw data and writes `responses.csv` (rows = persons, columns = `item_id`). If missing, the agent generates a template. Example:
+Loads raw data and writes `responses.csv` (rows = persons, columns = `item_id`). If missing, the agent generates a template.
 
+**Example A — local file:**
 ```r
-raw       <- read.csv("path/to/raw_data.csv")
-items     <- read.csv("Projects/your_study/items.csv")
+raw       <- read.csv("raw_data.csv")
+items     <- read.csv("items.csv")
 responses <- raw[, items$item_id]
-write.csv(responses, "Projects/your_study/responses.csv", row.names = FALSE)
+write.csv(responses, "responses.csv", row.names = FALSE)
+```
+
+**Example B — download from URL:**
+```r
+tmp <- tempfile(fileext = ".csv")
+download.file("https://osf.io/abc123/download", tmp)
+raw       <- read.csv(tmp)
+items     <- read.csv("items.csv")
+responses <- raw[, items$item_id]
+write.csv(responses, "responses.csv", row.names = FALSE)
 ```
 
 Then run:
