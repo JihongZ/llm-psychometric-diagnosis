@@ -96,7 +96,7 @@ A person is flagged as diagnosed if **at least 2 of 3 methods** agree (**consens
 
 ## ⚡ Quick Start
 
-**Requirements:** [Claude Code](https://claude.ai/claude-code), tmux, R ≥ 4.0, Python ≥ 3.10.
+**Requirements:** [Claude Code](https://github.com/anthropics/claude-code), tmux, R ≥ 4.0, Python ≥ 3.10.
 
 **Step 1 — Install pipx**
 
@@ -266,7 +266,7 @@ diagnosis run Projects/PTSD_Forbes2018
 - [`mirt`](https://cran.r-project.org/package=mirt) — R package for Item Response Theory (IRT) models
 - [`CDM`](https://cran.r-project.org/package=CDM) — R package for Cognitive Diagnosis Models (DCM)
 - [ClawTeam](https://github.com/HKUDS/ClawTeam) — architectural inspiration for the tmux-based agent CLI
-- [Claude Code](https://claude.ai/claude-code) — LLM agent runtime
+- [Claude Code](https://github.com/anthropics/claude-code) — LLM agent runtime
 
 ---
 
