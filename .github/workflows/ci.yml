@@ -1,0 +1,109 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-cli:
+    name: Test CLI install & validation
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.10", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package
+        run: pip install -e .
+
+      - name: diagnosis --help
+        run: diagnosis --help
+
+      - name: diagnosis version
+        run: diagnosis version
+
+      - name: Validate project folder (should pass)
+        run: |
+          # diagnosis run should fail at the claude check, not at folder validation
+          output=$(diagnosis run Projects/PTSD_Forbes2018 2>&1 || true)
+          echo "$output"
+          # Should NOT contain "items.csv not found"
+          if echo "$output" | grep -q "items.csv not found"; then
+            echo "FAIL: folder validation failed unexpectedly"
+            exit 1
+          fi
+          echo "PASS: folder validation succeeded"
+
+      - name: Validate missing folder (should fail)
+        run: |
+          output=$(diagnosis run /tmp/nonexistent 2>&1 || true)
+          echo "$output"
+          if echo "$output" | grep -q "folder not found"; then
+            echo "PASS: correctly rejected missing folder"
+          else
+            echo "FAIL: did not reject missing folder"
+            exit 1
+          fi
+
+  test-r-script:
+    name: Test R diagnostic script
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: "4.3"
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: r-${{ runner.os }}-${{ hashFiles('**/DESCRIPTION') }}-mirt-cdm
+          restore-keys: r-${{ runner.os }}-
+
+      - name: Install R packages
+        run: |
+          install.packages(c("mirt", "CDM"), repos = "https://cloud.r-project.org")
+        shell: Rscript {0}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prepare sample data
+        run: |
+          pip install -e .
+          cd Projects/PTSD_Forbes2018
+          Rscript prepare_responses.R
+
+      - name: Run diagnosis R script
+        run: |
+          cd Projects/PTSD_Forbes2018
+          if [ -f Output/PHQ-9_diagnosis.R ]; then
+            echo "Running existing diagnosis script..."
+            Rscript Output/PHQ-9_diagnosis.R
+          else
+            echo "No pre-generated R script found — skipping (expected in CI)"
+          fi
+
+      - name: Verify responses.csv was created
+        run: |
+          if [ -f Projects/PTSD_Forbes2018/responses.csv ]; then
+            echo "PASS: responses.csv created"
+            head -3 Projects/PTSD_Forbes2018/responses.csv
+          else
+            echo "FAIL: responses.csv not found"
+            exit 1
+          fi
