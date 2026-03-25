@@ -75,6 +75,8 @@ jobs:
       - name: Install R packages
         run: |
           install.packages(c("mirt", "CDM"), repos = "https://cloud.r-project.org")
+          install.packages("remotes", repos = "https://cloud.r-project.org")
+          remotes::install_github("ropensci/osfr")
         shell: Rscript {0}
 
       - name: Set up Python
