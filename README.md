@@ -23,7 +23,7 @@
 
 Given item-level response data from any psychological scale, the agent applies three complementary diagnostic methods and generates a structured markdown report with prevalence estimates, method comparisons, and plain-language clinical interpretation.
 
-See details of data analysis in the preprint on OSF - *AutoPsychDx: An LLM Agent Framework for Automated Psychometric Diagnosis Using Multi-Method Classification* [(Zhang, 2026)](https://osf.io/jtpa3/files/hf5w8).
+See details of data analysis in the preprint on OSF - *AutoPsychDx: An LLM Agent Framework for Automated Psychometric Diagnosis Using Multi-Method Classification* [(Zhang, 2026)](https://osf.io/jtpa3/files/sp3jt).
 
 ---
 
