@@ -121,7 +121,7 @@ Then install R packages:
 install.packages(c("mirt", "CDM"))
 ```
 
-**Step 3 — Install the diagnosis command**
+**Step 3 — Install the `diagnosis` command**
 
 ```bash
 git clone https://github.com/JihongZ/AutoPsychDx
