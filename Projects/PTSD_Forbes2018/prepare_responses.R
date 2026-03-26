@@ -12,6 +12,7 @@ raw_path       <- "Data/PTSD/time1and2data_wide.csv"
 
 # Download raw data if not already present
 if (!file.exists(raw_path)) {
+  dir.create("Data/PTSD", recursive = TRUE, showWarnings = FALSE)
   forbes2018       <- osf_retrieve_node("https://osf.io/6fk3v/")
   forbes2018_files <- osf_ls_files(forbes2018)
   osf_download(forbes2018_files[7, ], path = "Data/PTSD", conflicts = "skip")
