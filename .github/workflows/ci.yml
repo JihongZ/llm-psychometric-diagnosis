@@ -88,8 +88,7 @@ jobs:
       - name: Prepare sample data
         run: |
           pip install -e .
-          cd Projects/PTSD_Forbes2018
-          Rscript prepare_responses.R
+          Rscript Projects/PTSD_Forbes2018/prepare_responses.R
 
       - name: Run diagnosis R script
         run: |
