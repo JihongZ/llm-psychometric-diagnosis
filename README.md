@@ -205,24 +205,94 @@ PCL2,Repeated disturbing dreams of the stressful experience,PCL-5,33,0,4
 
 ### `prepare_responses.R` (optional)
 
-Only needed if you are extracting item columns from a larger raw dataset or downloading data at runtime. The agent generates a template if this file is missing.
+Only needed when your raw data is messy — mixed with demographic columns, wide-format variables, or needs to be downloaded from an external source. Write this script to produce both `responses.csv` and `items.csv` manually, then skip `diagnosis compile`.
 
-**Example A — local file:**
+**Example A — local file**
+
 ```r
-raw       <- read.csv("raw_data.csv")
-items     <- read.csv("items.csv")
-responses <- raw[, items$item_id]
+# prepare_responses.R — extract GAD-7 items from a local wide-format dataset
+
+# 1. Load raw data
+raw <- read.csv("raw_data.csv")   # e.g. 500 rows × 80 columns (demographics + items)
+
+# 2. Define the items you want
+item_ids   <- c("GAD1", "GAD2", "GAD3", "GAD4", "GAD5", "GAD6", "GAD7")
+item_texts <- c(
+  "Feeling nervous, anxious, or on edge",
+  "Not being able to stop or control worrying",
+  "Worrying too much about different things",
+  "Trouble relaxing",
+  "Being so restless that it's hard to sit still",
+  "Becoming easily annoyed or irritable",
+  "Feeling afraid as if something awful might happen"
+)
+
+# 3. Extract and write responses.csv
+responses <- raw[, item_ids]
 write.csv(responses, "responses.csv", row.names = FALSE)
+message("Saved responses.csv: ", nrow(responses), " persons x ", ncol(responses), " items")
+
+# 4. Write items.csv manually
+items <- data.frame(
+  item_id      = item_ids,
+  item_text    = item_texts,
+  scale        = "GAD-7",
+  cutoff       = 10,
+  response_min = 0,
+  response_max = 3
+)
+write.csv(items, "items.csv", row.names = FALSE)
+message("Saved items.csv: ", nrow(items), " items")
 ```
 
-**Example B — download from URL:**
+**Example B — download from the internet (e.g. OSF)**
+
 ```r
-tmp <- tempfile(fileext = ".csv")
-download.file("https://osf.io/abc123/download", tmp)
-raw       <- read.csv(tmp)
-items     <- read.csv("items.csv")
-responses <- raw[, items$item_id]
+# prepare_responses.R — download PHQ-9 data from OSF and extract items
+
+library(osfr)   # install.packages("osfr") if needed
+
+# 1. Download raw data from OSF
+osf_retrieve_file("https://osf.io/abc123") |>
+  osf_download(path = ".", conflicts = "overwrite")
+raw <- read.csv("raw_data.csv")
+
+# 2. Define items
+item_ids   <- paste0("PHQ", 1:9)
+item_texts <- c(
+  "Little interest or pleasure in doing things",
+  "Feeling down, depressed, or hopeless",
+  "Trouble falling or staying asleep, or sleeping too much",
+  "Feeling tired or having little energy",
+  "Poor appetite or overeating",
+  "Feeling bad about yourself",
+  "Trouble concentrating on things",
+  "Moving or speaking slowly / being fidgety or restless",
+  "Thoughts that you would be better off dead"
+)
+
+# 3. Extract and write responses.csv
+responses <- raw[, item_ids]
 write.csv(responses, "responses.csv", row.names = FALSE)
+message("Saved responses.csv: ", nrow(responses), " persons x ", ncol(responses), " items")
+
+# 4. Write items.csv manually
+items <- data.frame(
+  item_id      = item_ids,
+  item_text    = item_texts,
+  scale        = "PHQ-9",
+  cutoff       = 10,
+  response_min = 0,
+  response_max = 3
+)
+write.csv(items, "items.csv", row.names = FALSE)
+message("Saved items.csv: ", nrow(items), " items")
+```
+
+Then run the script once before starting the pipeline:
+
+```bash
+Rscript Projects/your_study/prepare_responses.R
 ```
 
 ### Step 3 — Run diagnosis
