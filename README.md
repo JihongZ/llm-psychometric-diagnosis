@@ -174,41 +174,28 @@ GAD1,GAD2,GAD3,GAD4,GAD5,GAD6,GAD7
 
 Place this file directly in your project folder. If you need to extract items from a larger dataset, write a `prepare_responses.R` script (see below).
 
-### Step 2 — Generate `items.csv` with `diagnosis compile`
+### Step 2 — Generate `items.csv` (three options)
 
-Run:
+`items.csv` adds item metadata (full wording, scale name, validated cut-off) that makes the report more meaningful. There are three ways to create it — choose whichever fits your workflow:
+
+---
+
+#### Option 1 — `diagnosis compile` (quickest)
 
 ```bash
 diagnosis compile Projects/your_study
 ```
 
-The agent reads `responses.csv`, infers item metadata (response range, scale name, cut-off), and writes `items.csv` automatically. Review and edit `item_text` afterwards if column names are codes rather than full wording.
+The agent reads `responses.csv`, infers scale name, response range, and cut-off from the data, and writes `items.csv` automatically. **Review the output** — inferred values (especially scale name and cut-off) may need manual correction.
 
-### `items.csv` format
+---
 
-One row per item:
+#### Option 2 — Script (`prepare_responses.R` or Python)
 
-| Column | Description |
-|---|---|
-| `item_id` | Unique ID matching column names in `responses.csv` (e.g. `PCL1`) |
-| `item_text` | Full item wording as shown to respondents |
-| `scale` | Scale name used to group items and label outputs (e.g. `PCL-5`) |
-| `cutoff` | Validated sum-score cut-off for this scale (repeat for all rows in the scale) |
-| `response_min` | Minimum response value (e.g. `0`) |
-| `response_max` | Maximum response value (e.g. `4`) |
-
-```csv
-item_id,item_text,scale,cutoff,response_min,response_max
-PCL1,Repeated disturbing and unwanted memories of the stressful experience,PCL-5,33,0,4
-PCL2,Repeated disturbing dreams of the stressful experience,PCL-5,33,0,4
-```
-
-### `prepare_responses.R` (optional)
-
-Only needed when your raw data is messy — mixed with demographic columns, wide-format variables, or needs to be downloaded from an external source. Write this script to produce both `responses.csv` and `items.csv` manually, then skip `diagnosis compile`.
+Write a script that builds both `responses.csv` and `items.csv` from your raw dataset. Run it once before `diagnosis run`. Best when raw data is messy (mixed demographic columns, wide format, or downloaded from an external source).
 
 <details>
-<summary><strong>Example A — local file</strong></summary>
+<summary><strong>R — local file</strong></summary>
 
 ```r
 # prepare_responses.R — extract GAD-7 items from a local wide-format dataset
@@ -216,7 +203,7 @@ Only needed when your raw data is messy — mixed with demographic columns, wide
 # 1. Load raw data
 raw <- read.csv("raw_data.csv")   # e.g. 500 rows × 80 columns (demographics + items)
 
-# 2. Define the items you want
+# 2. Define items
 item_ids   <- c("GAD1", "GAD2", "GAD3", "GAD4", "GAD5", "GAD6", "GAD7")
 item_texts <- c(
   "Feeling nervous, anxious, or on edge",
@@ -233,7 +220,7 @@ responses <- raw[, item_ids]
 write.csv(responses, "responses.csv", row.names = FALSE)
 message("Saved responses.csv: ", nrow(responses), " persons x ", ncol(responses), " items")
 
-# 4. Write items.csv manually
+# 4. Write items.csv
 items <- data.frame(
   item_id      = item_ids,
   item_text    = item_texts,
@@ -246,17 +233,21 @@ write.csv(items, "items.csv", row.names = FALSE)
 message("Saved items.csv: ", nrow(items), " items")
 ```
 
+```bash
+Rscript Projects/your_study/prepare_responses.R
+```
+
 </details>
 
 <details>
-<summary><strong>Example B — download from the internet (e.g. OSF)</strong></summary>
+<summary><strong>R — download from the internet (e.g. OSF)</strong></summary>
 
 ```r
 # prepare_responses.R — download PHQ-9 data from OSF and extract items
 
 library(osfr)   # install.packages("osfr") if needed
 
-# 1. Download raw data from OSF
+# 1. Download raw data
 osf_retrieve_file("https://osf.io/abc123") |>
   osf_download(path = ".", conflicts = "overwrite")
 raw <- read.csv("raw_data.csv")
@@ -280,7 +271,7 @@ responses <- raw[, item_ids]
 write.csv(responses, "responses.csv", row.names = FALSE)
 message("Saved responses.csv: ", nrow(responses), " persons x ", ncol(responses), " items")
 
-# 4. Write items.csv manually
+# 4. Write items.csv
 items <- data.frame(
   item_id      = item_ids,
   item_text    = item_texts,
@@ -293,13 +284,36 @@ write.csv(items, "items.csv", row.names = FALSE)
 message("Saved items.csv: ", nrow(items), " items")
 ```
 
-</details>
-
-Then run the script once before starting the pipeline:
-
 ```bash
 Rscript Projects/your_study/prepare_responses.R
 ```
+
+</details>
+
+---
+
+#### Option 3 — Manual spreadsheet (most control)
+
+Create `items.csv` directly in Excel, Google Sheets, or any spreadsheet editor. Save as CSV and place it in the project folder.
+
+Required columns:
+
+| Column | Description |
+|---|---|
+| `item_id` | Unique ID matching column names in `responses.csv` (e.g. `PCL1`) |
+| `item_text` | Full item wording as shown to respondents |
+| `scale` | Scale name used to group items and label outputs (e.g. `PCL-5`) |
+| `cutoff` | Validated sum-score cut-off for this scale (repeat for all rows in the scale) |
+| `response_min` | Minimum response value (e.g. `0`) |
+| `response_max` | Maximum response value (e.g. `4`) |
+
+```csv
+item_id,item_text,scale,cutoff,response_min,response_max
+PCL1,Repeated disturbing and unwanted memories of the stressful experience,PCL-5,33,0,4
+PCL2,Repeated disturbing dreams of the stressful experience,PCL-5,33,0,4
+```
+
+---
 
 ### Step 3 — Run diagnosis
 
