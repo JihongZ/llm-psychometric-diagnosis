@@ -207,7 +207,8 @@ PCL2,Repeated disturbing dreams of the stressful experience,PCL-5,33,0,4
 
 Only needed when your raw data is messy — mixed with demographic columns, wide-format variables, or needs to be downloaded from an external source. Write this script to produce both `responses.csv` and `items.csv` manually, then skip `diagnosis compile`.
 
-**Example A — local file**
+<details>
+<summary><strong>Example A — local file</strong></summary>
 
 ```r
 # prepare_responses.R — extract GAD-7 items from a local wide-format dataset
@@ -245,7 +246,10 @@ write.csv(items, "items.csv", row.names = FALSE)
 message("Saved items.csv: ", nrow(items), " items")
 ```
 
-**Example B — download from the internet (e.g. OSF)**
+</details>
+
+<details>
+<summary><strong>Example B — download from the internet (e.g. OSF)</strong></summary>
 
 ```r
 # prepare_responses.R — download PHQ-9 data from OSF and extract items
@@ -288,6 +292,8 @@ items <- data.frame(
 write.csv(items, "items.csv", row.names = FALSE)
 message("Saved items.csv: ", nrow(items), " items")
 ```
+
+</details>
 
 Then run the script once before starting the pipeline:
 
