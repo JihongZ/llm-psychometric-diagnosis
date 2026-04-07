@@ -140,10 +140,12 @@ diagnosis --help
 
 | Command | Description |
 |---|---|
-| `diagnosis run <folder>` | Run the full pipeline (attaches to tmux session) |
+| `diagnosis compile <folder>` | Generate `items.csv` from `responses.csv` |
+| `diagnosis run <folder>` | Run the full diagnosis pipeline (spinner, blocks until done) |
 | `diagnosis run <folder> --clear` | Delete `Output/` then re-run |
-| `diagnosis run <folder> --no-attach` | Run in background, show spinner until done |
-| `diagnosis attach <name>` | Re-attach to a running session |
+| `diagnosis clean <folder>` | Remove generated `Output/` directory |
+| `diagnosis clean <folder> --all` | Also remove `items.csv` (responses.csv is never deleted) |
+| `diagnosis attach <name>` | Attach to a running tmux session to watch live output |
 | `diagnosis ls` | List all active diagnosis sessions |
 | `diagnosis kill <name>` | Stop a running session |
 | `diagnosis version` | Show installed version |
@@ -151,13 +153,38 @@ diagnosis --help
 `<folder>` is the path to your project folder (e.g. `Projects/PTSD_Forbes2018`).
 `<name>` is the folder name only (e.g. `PTSD_Forbes2018`).
 
+> Both `compile` and `run` run the agent inside a **tmux session** in the background and show a spinner until finished. Use `diagnosis attach <name>` at any time to watch the agent output live.
+
 ---
 
 ## 📁 Preparing a New Project
 
-Create a folder with up to three files:
+The minimum setup is a folder with two files: `responses.csv` and `items.csv`.
 
-### `items.csv` (required)
+### Step 1 — Prepare `responses.csv`
+
+A CSV where each **row is a person** and each **column is an item** (column names = item IDs):
+
+```csv
+GAD1,GAD2,GAD3,GAD4,GAD5,GAD6,GAD7
+0,1,0,2,1,0,1
+1,2,1,3,2,1,2
+...
+```
+
+Place this file directly in your project folder. If you need to extract items from a larger dataset, write a `prepare_responses.R` script (see below).
+
+### Step 2 — Generate `items.csv` with `diagnosis compile`
+
+Run:
+
+```bash
+diagnosis compile Projects/your_study
+```
+
+The agent reads `responses.csv`, infers item metadata (response range, scale name, cut-off), and writes `items.csv` automatically. Review and edit `item_text` afterwards if column names are codes rather than full wording.
+
+### `items.csv` format
 
 One row per item:
 
@@ -176,20 +203,9 @@ PCL1,Repeated disturbing and unwanted memories of the stressful experience,PCL-5
 PCL2,Repeated disturbing dreams of the stressful experience,PCL-5,33,0,4
 ```
 
-### Raw data
-
-The raw data file containing participant responses is required before running the pipeline. It can come from two sources:
-
-| Source | How it works |
-|---|---|
-| **Local file** | Place `raw_data.csv` (or any `.csv` / `.sav` / `.rds`) directly in the project folder. Reference it in `prepare_responses.R`. |
-| **Online repository** | `prepare_responses.R` downloads the data at runtime (e.g. from OSF, GitHub, or a URL). No local file needed. |
-
-The included example (`Projects/PTSD_Forbes2018`) uses the online approach — `prepare_responses.R` downloads data from OSF automatically on first run.
-
 ### `prepare_responses.R` (optional)
 
-Loads raw data and writes `responses.csv` (rows = persons, columns = `item_id`). If missing, the agent generates a template.
+Only needed if you are extracting item columns from a larger raw dataset or downloading data at runtime. The agent generates a template if this file is missing.
 
 **Example A — local file:**
 ```r
@@ -209,7 +225,7 @@ responses <- raw[, items$item_id]
 write.csv(responses, "responses.csv", row.names = FALSE)
 ```
 
-Then run:
+### Step 3 — Run diagnosis
 
 ```bash
 diagnosis run Projects/your_study
@@ -220,29 +236,35 @@ diagnosis run Projects/your_study
 ## 🏗️ How It Works
 
 ```
-  items.csv + prepare_responses.R
-              │
-              ▼
-    diagnosis run <folder>
-              │
-              ├─── Method A: Sum Score Cut-off ──► dx_cutoff (0/1)
-              │
-              ├─── Method B: IRT (Graded Response Model) ──► dx_irt (0/1) + θ ± SE
-              │
-              └─── Method C: DCM (CDM::gdm) ──► dx_dcm (0/1) + P(diagnosed)
-                             │
-                             ▼
-                 Consensus: diagnosed if ≥ 2/3 methods agree
-                             │
-                             ▼
-              Output/
-                [scale]_diagnosis.R          ← generated R script
-                [scale]_diagnosis_results.csv ← person-level results
-                [scale]_diagnosis_output.txt  ← raw report text
-                diagnosis_report.md          ← full report with interpretation
+  responses.csv
+       │
+       ▼
+  diagnosis compile <folder>          ← infers metadata, writes items.csv
+       │
+       ▼
+  items.csv  +  responses.csv
+       │
+       ▼
+  diagnosis run <folder>
+       │
+       ├─── Method A: Sum Score Cut-off ──► dx_cutoff (0/1)
+       │
+       ├─── Method B: IRT (Graded Response Model) ──► dx_irt (0/1) + θ ± SE
+       │
+       └─── Method C: DCM (CDM::gdm) ──► dx_dcm (0/1) + P(diagnosed)
+                      │
+                      ▼
+          Consensus: diagnosed if ≥ 2/3 methods agree
+                      │
+                      ▼
+       Output/
+         [scale]_diagnosis.R           ← generated R script
+         [scale]_diagnosis_results.csv ← person-level results
+         [scale]_diagnosis_output.txt  ← raw report text
+         diagnosis_report.md           ← full report with interpretation
 ```
 
-The agent runs inside a **tmux session** (`diagnosis-{project}`). Skill files in `diagnosis/skills/` define the agent workflow — edit them to change behaviour for all projects.
+Both commands run inside a **tmux session** in the background and block with a spinner until done. Use `diagnosis attach <name>` to watch live output at any time. Skill files in `diagnosis/skills/` define the agent workflow — edit them to change behaviour for all projects.
 
 ---
 
@@ -373,13 +395,14 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE).
 ```
 .
 ├── diagnosis/                           # Python package (pipx install -e .)
-│   ├── cli.py                           # Typer CLI: run / attach / kill / ls / version
+│   ├── cli.py                           # Typer CLI: compile / run / clean / attach / kill / ls / version
 │   ├── tmux.py                          # tmux session management
 │   ├── skill_loader.py                  # loads bundled skill files
 │   ├── __init__.py
 │   ├── __main__.py
 │   └── skills/
 │       ├── diagnosis.md                 # agent workflow definition
+│       ├── generate-items.md            # items.csv generation workflow
 │       └── psychometric-diagnosis.md   # R function definitions
 ├── pyproject.toml                       # package metadata and entry point
 ├── .claude/

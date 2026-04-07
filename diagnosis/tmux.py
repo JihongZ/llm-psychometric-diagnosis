@@ -78,7 +78,7 @@ def _wait_for_finish(session: str, poll_interval: float = 3.0) -> None:
     print("\r  ✓  Agent finished.                                        ")
 
 
-def spawn(project_folder: str, prompt: str, attach: bool = True) -> str:
+def spawn(project_folder: str, prompt: str, attach: bool = True, session_suffix: str = "") -> str:
     """
     Create a tmux session, write the prompt to a temp file, and run:
         claude --dangerously-skip-permissions -p "$(cat prompt_file)"
@@ -92,7 +92,7 @@ def spawn(project_folder: str, prompt: str, attach: bool = True) -> str:
     _require_tmux()
     _require_claude()
 
-    session = session_name(project_folder)
+    session = session_name(project_folder) + session_suffix
 
     if is_running(session):
         print(f"Session '{session}' is already running.")
@@ -107,18 +107,14 @@ def spawn(project_folder: str, prompt: str, attach: bool = True) -> str:
     cmd = (
         f'echo "--- Diagnosis agent started ---" && '
         f'claude --dangerously-skip-permissions -p "$(cat {shlex.quote(str(prompt_file))})"; '
-        f'echo ""; echo "--- Agent finished. Press any key to close ---"; '
-        f'read -n 1; '
+        f'echo "--- Agent finished ---"; '
         f'rm -f {shlex.quote(str(prompt_file))}'
     )
 
-    # Create detached tmux session and send the command
+    # Run the command directly via bash -c so the session exits when the command finishes
     subprocess.run(
-        ["tmux", "new-session", "-d", "-s", session, "-x", "220", "-y", "50"],
-        check=True,
-    )
-    subprocess.run(
-        ["tmux", "send-keys", "-t", session, cmd, "Enter"],
+        ["tmux", "new-session", "-d", "-s", session, "-x", "220", "-y", "50",
+         "bash", "-c", cmd],
         check=True,
     )
 

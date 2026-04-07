@@ -23,11 +23,14 @@ System dependencies: `tmux`, `R >= 4.0`, Claude Code CLI (`claude`).
 ## CLI Commands
 
 ```bash
-diagnosis run <folder>              # run full pipeline (attaches to tmux)
-diagnosis run <folder> --clear      # delete Output/ first, then run
-diagnosis run <folder> --no-attach  # run in background with spinner
-diagnosis attach <name>             # reattach to running session
-diagnosis kill <name>               # stop a session
+diagnosis compile <folder>              # generate items.csv from responses.csv
+diagnosis clean <folder>                # remove Output/ (generated results)
+diagnosis clean <folder> --all          # also remove items.csv (responses.csv is never deleted)
+diagnosis compile <folder> --no-attach  # compile in background with spinner
+diagnosis run <folder>                  # run diagnosis pipeline (background spinner, blocks until done)
+diagnosis run <folder> --clear          # delete Output/ first, then run
+diagnosis attach <name>                 # reattach to running session
+diagnosis kill <name>                   # stop a session
 diagnosis ls                        # list active sessions
 diagnosis version                   # show version
 ```
