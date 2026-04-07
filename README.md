@@ -159,7 +159,7 @@ diagnosis --help
 
 ## 🛠️ How to Use
 
-The minimum setup is a folder with two files: `responses.csv` and `items.csv`.
+The minimum setup is a single file: `responses.csv` (cleaned item response data). Run `diagnosis compile` to generate `items.csv` automatically — this adds item metadata that produces a richer, more interpretable report.
 
 ### Step 1 — Prepare `responses.csv`
 
