@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="#-quick-start"><img src="https://img.shields.io/badge/Quick_Start-3_steps-blue?style=for-the-badge" alt="Quick Start"></a>
+  <a href="#-how-to-use"><img src="https://img.shields.io/badge/How_to_Use-3_steps-blue?style=for-the-badge" alt="How to Use"></a>
   <a href="#-example-depression-screening-forbes-2018"><img src="https://img.shields.io/badge/Example-PHQ--9_Depression-green?style=for-the-badge" alt="Example"></a>
   <a href="#-diagnostic-methods"><img src="https://img.shields.io/badge/Methods-3_(Cut--off_|_IRT_|_DCM)-purple?style=for-the-badge" alt="Methods"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="License"></a>
@@ -157,7 +157,7 @@ diagnosis --help
 
 ---
 
-## 📁 Preparing a New Project
+## 🛠️ How to Use
 
 The minimum setup is a folder with two files: `responses.csv` and `items.csv`.
 
@@ -302,6 +302,25 @@ diagnosis run Projects/PTSD_Forbes2018
 > - **Unidimensional only:** All three methods currently assume a single latent construct. Multidimensional scales (e.g., instruments with subscales measuring distinct attributes) are not yet supported.
 > - **DCM:** Only the general diagnostic model (`CDM::gdm`) is supported. LCDM, GDINA, DINA, and DINO are not yet implemented.
 > - **IRT:** Limited to the Graded Response Model. Requires **complete responses** — handle missing data in `prepare_responses.R` before running.
+
+---
+
+## 📝 Changelog
+
+### v0.1.1
+
+- **`diagnosis compile`** — new command that generates `items.csv` automatically from `responses.csv`. The agent infers item IDs, scale name, response range, and cut-off from the data without manual setup.
+- **`diagnosis clean`** — new command to remove generated outputs. Deletes `Output/` by default; `--all` also removes `items.csv`. `responses.csv` is never touched.
+- **`responses.csv` as direct input** — drop a response matrix into the project folder and run `diagnosis compile` directly. `prepare_responses.R` is now optional (only needed when extracting columns from a larger dataset).
+- **Auto-exit tmux sessions** — agent sessions now close automatically when the agent finishes. No keypress required.
+- **Consistent CLI** — both `compile` and `run` run in the background with a spinner and block until done. Use `diagnosis attach <name>` to watch live output at any time.
+
+### v0.1.0
+
+- Initial release: `diagnosis run` with cut-off, IRT (GRM), and DCM (GDM) methods
+- Consensus diagnosis (≥ 2/3 methods agree)
+- Structured markdown report with prevalence, method comparison, and clinical interpretation
+- tmux-based agent sessions with attach/kill/list commands
 
 ---
 
