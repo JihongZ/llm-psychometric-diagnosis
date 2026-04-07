@@ -373,6 +373,46 @@ diagnosis run Projects/PTSD_Forbes2018
 </tr>
 </table>
 
+---
+
+## 📊 Example: Anxiety Screening (Forbes 2018)
+
+`Projects/Anxiety_GAD_Forbes2018/` demonstrates the two-command workflow using publicly available GAD-7 data from [Forbes et al. (2018)](https://osf.io/6fk3v/). `responses.csv` is placed directly in the project folder — no `prepare_responses.R` needed.
+
+**Step 1 — Generate `items.csv`**
+
+```
+❯ diagnosis compile Projects/Anxiety_GAD_Forbes2018
+Found responses.csv — using it as raw data.
+╭─────────────────────────── Generate items.csv ───────────────────────────╮
+│ Project: .../Projects/Anxiety_GAD_Forbes2018                              │
+│ Raw data: responses.csv                                                   │
+╰───────────────────────────────────────────────────────────────────────────╯
+  Session: diagnosis-anxiety-gad-forbes2018-compile
+  Attach:  tmux attach -t diagnosis-anxiety-gad-forbes2018-compile
+  Kill:    diagnosis kill Anxiety_GAD_Forbes2018
+
+  ✓  Agent finished.
+items.csv created.
+```
+
+**Step 2 — Run diagnosis**
+
+```
+❯ diagnosis run Projects/Anxiety_GAD_Forbes2018
+╭──────────────────────── Psychometric Diagnosis Agent ────────────────────╮
+│ Project: .../Projects/Anxiety_GAD_Forbes2018                              │
+│ Version: 0.1.1                                                            │
+╰───────────────────────────────────────────────────────────────────────────╯
+  Session: diagnosis-anxiety-gad-forbes2018
+  Attach:  tmux attach -t diagnosis-anxiety-gad-forbes2018
+  Kill:    diagnosis kill Anxiety_GAD_Forbes2018
+
+  ✓  Agent finished.
+```
+
+All output is written to `Projects/Anxiety_GAD_Forbes2018/Output/`.
+
 > [!NOTE]
 > **Current Limitations**
 > - **Unidimensional only:** All three methods currently assume a single latent construct. Multidimensional scales (e.g., instruments with subscales measuring distinct attributes) are not yet supported.
